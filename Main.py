@@ -6,10 +6,7 @@ def main():
     """
     print("Welcome to the Brand Scoring Tool!")
     
-    # Get brand name input
     brand_name = input("Enter the brand name: ").strip()
-    
-    # Get tags input
     tags_input = input("Enter tags for the brand (comma-separated): ").strip()
     tags = [tag.strip() for tag in tags_input.split(",") if tag.strip()]
     

@@ -1,7 +1,8 @@
 import spacy
 
-# Load the spaCy language model
 nlp = spacy.load("en_core_web_md")
+
+STOP_WORDS = {"the", "a", "an", "and", "of", "in", "on", "at", "for", "with"}
 
 def brand_score(brand_name: str, tags: list[str], ease_of_saying: float, is_luxury: bool) -> float:
     """
@@ -14,7 +15,7 @@ def brand_score(brand_name: str, tags: list[str], ease_of_saying: float, is_luxu
         is_luxury (bool): Whether the product is a luxury product.
 
     Returns:
-        float: A score calculated based on the semantic similarity, ease of saying, and luxury status.
+        float: A score calculated based on the semantic similarity, ease of saying, and alliteration.
     """
     brand_doc = nlp(brand_name.lower())
     
@@ -23,7 +24,7 @@ def brand_score(brand_name: str, tags: list[str], ease_of_saying: float, is_luxu
     for tag in tags:
         tag_doc = nlp(tag.lower())
         similarity = brand_doc.similarity(tag_doc)
-        score += similarity  # Add the similarity score to the total score
+        score += similarity
     
     if tags:
         score /= len(tags)
@@ -32,7 +33,11 @@ def brand_score(brand_name: str, tags: list[str], ease_of_saying: float, is_luxu
     
     score += ease_of_saying * 20
     
-    if is_luxury:
-        score += 15
+    words = [word for word in brand_name.split() if word.lower() not in STOP_WORDS]
+    if len(words) > 1 and all(word[0].lower() == words[0][0].lower() for word in words):
+        score += 10
+    
+    if not is_luxury and ease_of_saying < 0.5:
+        score -= 15
     
     return round(score, 2)
